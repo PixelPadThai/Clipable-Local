@@ -1,8 +1,8 @@
 # 📋✨ Clipable
 
-> **A beautiful, real-time synchronized clipboard application that seamlessly shares text across multiple devices with stunning visual effects**
+> **A beautiful, privacy-first clipboard application that runs locally on your network - seamlessly sync text across all your devices with stunning visual effects, zero cloud dependency, and complete data privacy**
 
-Clipable transforms the simple concept of a clipboard into a magical experience. With flowing gradient animations, interactive backgrounds, and instant synchronization, it's not just a tool—it's a work of art that happens to be incredibly useful.
+Clipable transforms the simple concept of a clipboard into a powerful, privacy-focused solution that stays entirely under your control. Share text instantly across all your devices through your local network—no cloud services, no data collection, no privacy concerns. Just run `npm run dev` to start your local server and client, then access it from any device on your network for seamless text synchronization! 
 
 ## 🌟 Features
 
@@ -51,9 +51,9 @@ npm run dev
 ```
 
 ### 3️⃣ **Access Anywhere**
-- **Frontend**: http://192.168.1.5:5555/ 🌐
-- **Backend API**: http://192.168.1.5:5554/ 📡
-- **Server Status**: http://192.168.1.5:5554/api/status 📊
+- **Frontend**: http://192.168.1.5:5555/ 🌐 (see [Custom IP Setup](#-custom-ip-setup))
+- **Backend API**: http://192.168.1.5:5554/ 📡 (see [Custom IP Setup](#-custom-ip-setup))
+- **Server Status**: http://192.168.1.5:5554/api/status 📊 (see [Custom IP Setup](#-custom-ip-setup))
 
 ### 4️⃣ **Start Creating**
 - Open Clipable from any device on your network
@@ -94,15 +94,29 @@ npm run dev
 
 Clipable runs on your local network for maximum privacy and speed:
 
-- **Frontend**: `192.168.1.5:5555` (network accessible)
-- **Backend**: `192.168.1.5:5554` (network accessible)
+- **Frontend**: `192.168.1.5:5555` (network accessible, see [Custom IP Setup](#-custom-ip-setup) below)
+- **Backend**: `192.168.1.5:5554` (network accessible, see [Custom IP Setup](#-custom-ip-setup) below)
 
 ### 🔧 **Custom IP Setup**
-To change the IP address, update `src/config.js`:
+**⚠️ Important**: You must update the IP address to match your computer's local network IP address. 
+
+To find your IP address:
+- **Windows**: Run `ipconfig` in Command Prompt
+- **Mac/Linux**: Run `ifconfig` or `ip addr` in Terminal
+
+Then update `src/config.js` with your actual IP address:
 ```javascript
 export const SERVER_CONFIG = {
-  httpUrl: 'http://YOUR_IP:5554',
-  wsUrl: 'ws://YOUR_IP:5554'
+  httpUrl: 'http://YOUR_IP:5554',    // Replace YOUR_IP with your computer's IP
+  wsUrl: 'ws://YOUR_IP:5554'         // Replace YOUR_IP with your computer's IP
+};
+```
+
+**Example**: If your computer's IP is `192.168.0.100`, change it to:
+```javascript
+export const SERVER_CONFIG = {
+  httpUrl: 'http://192.168.0.100:5554',
+  wsUrl: 'ws://192.168.0.100:5554'
 };
 ```
 
@@ -185,7 +199,7 @@ src/
 
 <div align="center">
 
-**Built with ❤️ using React, Node.js, WebSocket, and beautiful animations**
+**Built with ❤️ https://lovable.dev/ React, Node.js, WebSocket, and beautiful animations**
 
 🌟 **Star this project if you find it useful!** 🌟
 
