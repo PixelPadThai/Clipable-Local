@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { clipboardOperations } from '../services/clipboardOperations.js';
 import { AUTO_SAVE_DELAY } from '../config.js';
 
-export function useClipboard(areaName) {
+export function useClipboard(roomCode, areaName) {
   const [content, setContent] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -14,19 +14,23 @@ export function useClipboard(areaName) {
 
   // Debounced save function
   const debouncedSave = useCallback(async (newContent) => {
+    if (!roomCode) return;
+
     if (saveTimeoutRef.current) {
       clearTimeout(saveTimeoutRef.current);
     }
 
     saveTimeoutRef.current = setTimeout(async () => {
       setIsSaving(true);
-      await clipboardOperations.updateClipboardContent(areaName, newContent);
+      await clipboardOperations.updateClipboardContent(roomCode, areaName, newContent);
       setIsSaving(false);
     }, AUTO_SAVE_DELAY);
-  }, [areaName]);
+  }, [roomCode, areaName]);
 
   // Update content function
   const updateContent = useCallback((newContent) => {
+    if (!roomCode) return;
+
     // Mark this as a user update
     lastUserUpdateRef.current = Date.now();
     
@@ -35,15 +39,20 @@ export function useClipboard(areaName) {
     
     setContent(newContent);
     debouncedSave(newContent);
-  }, [debouncedSave]);
+  }, [roomCode, debouncedSave]);
 
   // Initialize clipboard content and subscription
   useEffect(() => {
+    if (!roomCode) {
+      setIsLoading(false);
+      return;
+    }
+
     let isMounted = true;
 
     const initializeClipboard = async () => {
       try {
-        const initialContent = await clipboardOperations.getClipboardContent(areaName);
+        const initialContent = await clipboardOperations.getClipboardContent(roomCode, areaName);
         if (isMounted) {
           setContent(initialContent);
           setIsLoading(false);
@@ -59,6 +68,7 @@ export function useClipboard(areaName) {
     // Set up real-time subscription
     const setupSubscription = () => {
       unsubscribeRef.current = clipboardOperations.subscribeToClipboardChanges(
+        roomCode,
         areaName,
         (newContent) => {
           if (isMounted) {
@@ -85,7 +95,7 @@ export function useClipboard(areaName) {
         unsubscribeRef.current();
       }
     };
-  }, [areaName]);
+  }, [roomCode, areaName]);
 
   return {
     content,

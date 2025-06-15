@@ -5,15 +5,16 @@ import ClipboardArea from './components/ClipboardArea.jsx';
 import ConnectionStatus from './components/ConnectionStatus.jsx';
 import SaveIndicator from './components/SaveIndicator.jsx';
 import AnimatedLogo from './components/AnimatedLogo.jsx';
-import Auth from './components/Auth.jsx';
-import UserProfile from './components/UserProfile.jsx';
-import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
+import RoomCodeInput from './components/RoomCodeInput.jsx';
+import { clipboardOperations } from './services/clipboardOperations.js';
+import './components/RoomCodeInput.css';
 
-function AppContent() {
+function App() {
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [overlayOpacity, setOverlayOpacity] = useState(0);
   const [activeArea, setActiveArea] = useState(null);
-  const { user, loading } = useAuth();
+  const [roomCode, setRoomCode] = useState(null);
+  const [isJoining, setIsJoining] = useState(false);
 
   const toggleEffects = () => {
     setEffectsEnabled(!effectsEnabled);
@@ -31,18 +32,34 @@ function AppContent() {
     setActiveArea(null);
   };
 
-  if (loading) {
-    return (
-      <div className="app loading-screen">
-        <div className="loading-message">Loading...</div>
-      </div>
-    );
-  }
+  const handleJoinRoom = async (code) => {
+    setIsJoining(true);
+    const success = await clipboardOperations.joinRoom(code);
+    if (success) {
+      setRoomCode(code);
+    } else {
+      alert('Failed to join room. Please try again.');
+    }
+    setIsJoining(false);
+  };
 
-  if (!user) {
+  const handleCreateRoom = async () => {
+    const newRoomCode = await clipboardOperations.createRoom();
+    if (newRoomCode) {
+      setRoomCode(newRoomCode);
+    } else {
+      alert('Failed to create room. Please try again.');
+    }
+  };
+
+  if (!roomCode) {
     return (
       <div className="app">
-        <Auth />
+        <RoomCodeInput 
+          onJoinRoom={handleJoinRoom}
+          onCreateRoom={handleCreateRoom}
+          isJoining={isJoining}
+        />
       </div>
     );
   }
@@ -69,16 +86,18 @@ function AppContent() {
           />
         </>
       )}
+      
+      <RoomCodeInput currentRoomCode={roomCode} />
+      
       <div className="clipboard-container">
         <div className="status-bar">
           <div className="status-left">
-            <ConnectionStatus />
+            <ConnectionStatus roomCode={roomCode} />
           </div>
           <div className="header">
             <h1>Clipable</h1>
           </div>
           <div className="status-right">
-            <UserProfile />
             <div className="background-toggle-container">
               <label className="background-toggle" title={effectsEnabled ? 'Switch to static background' : 'Switch to animated background'}>
                 <input 
@@ -107,12 +126,14 @@ function AppContent() {
         
         <div className="text-areas">
           <ClipboardArea
+            roomCode={roomCode}
             areaName="area_1"
-            placeholder="Start typing here... Your text will sync across all devices in real-time."
+            placeholder="Start typing here... Your text will sync across all devices using the room code."
             onFocus={() => handleAreaFocus('area_1')}
             onBlur={handleAreaBlur}
           />
           <ClipboardArea
+            roomCode={roomCode}
             areaName="area_2"
             placeholder="Use this area for different content... Perfect for comparing or organizing text."
             onFocus={() => handleAreaFocus('area_2')}
@@ -121,14 +142,6 @@ function AppContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-function App() {
-  return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
   );
 }
 

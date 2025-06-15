@@ -9,30 +9,33 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      clipboard_areas: {
+      clipboard_rooms: {
         Row: {
           area_name: string
           content: string | null
           created_at: string
           id: string
+          last_accessed: string
+          room_code: string
           updated_at: string
-          user_id: string
         }
         Insert: {
           area_name: string
           content?: string | null
           created_at?: string
           id?: string
+          last_accessed?: string
+          room_code: string
           updated_at?: string
-          user_id: string
         }
         Update: {
           area_name?: string
           content?: string | null
           created_at?: string
           id?: string
+          last_accessed?: string
+          room_code?: string
           updated_at?: string
-          user_id?: string
         }
         Relationships: []
       }
@@ -229,7 +232,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      generate_room_code: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
     }
     Enums: {
       [_ in never]: never

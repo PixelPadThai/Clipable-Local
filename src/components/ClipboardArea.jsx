@@ -2,8 +2,8 @@
 import { useClipboard } from '../hooks/useClipboard.js';
 import CopyButton from './CopyButton.jsx';
 
-function ClipboardArea({ areaName, placeholder, onFocus, onBlur }) {
-  const { content, updateContent, isLoading, isSaving } = useClipboard(areaName);
+function ClipboardArea({ roomCode, areaName, placeholder, onFocus, onBlur }) {
+  const { content, updateContent, isLoading, isSaving } = useClipboard(roomCode, areaName);
 
   const handleChange = (e) => {
     updateContent(e.target.value);

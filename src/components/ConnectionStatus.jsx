@@ -2,15 +2,15 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../integrations/supabase/client.js';
 
-function ConnectionStatus() {
+function ConnectionStatus({ roomCode }) {
   const [connected, setConnected] = useState(true);
-  const [sessionsCount, setSessionsCount] = useState(1);
 
   useEffect(() => {
     // Check connection status
     const checkConnection = async () => {
       try {
-        const { data, error } = await supabase.auth.getSession();
+        // Simple ping to check if Supabase is reachable
+        const { error } = await supabase.from('clipboard_rooms').select('id').limit(1);
         setConnected(!error);
       } catch (error) {
         setConnected(false);
@@ -29,9 +29,11 @@ function ConnectionStatus() {
         <div className={`connection-dot ${connected ? 'connected' : 'disconnected'}`}></div>
         <span>{connected ? 'Connected' : 'Disconnected'}</span>
       </div>
-      <div className="sessions-count">
-        <span>👥 {sessionsCount}</span>
-      </div>
+      {roomCode && (
+        <div className="room-info">
+          <span>Room: {roomCode}</span>
+        </div>
+      )}
     </div>
   );
 }
