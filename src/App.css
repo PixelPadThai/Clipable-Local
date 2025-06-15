@@ -1,3 +1,4 @@
+
 /* Global styles */
 * {
   margin: 0;
@@ -369,7 +370,7 @@ html, body, #root {
   transform: scale(1.1);
 }
 
-/* Connection status */
+/* Connection status with integrated room controls */
 .connection-status {
   display: flex;
   align-items: center;
@@ -399,6 +400,123 @@ html, body, #root {
 .connection-dot.disconnected {
   background: #ef4444;
   color: #ef4444;
+}
+
+.room-info {
+  display: flex;
+  align-items: center;
+}
+
+.room-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.current-room {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: white;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+  transition: background-color 0.2s;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.current-room:hover {
+  background-color: rgba(255, 255, 255, 0.15);
+}
+
+.room-label {
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.room-code {
+  font-family: 'Courier New', monospace;
+  font-size: 1rem;
+  font-weight: bold;
+  letter-spacing: 0.05em;
+}
+
+.copy-room-code {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 2px;
+  border-radius: 3px;
+  transition: background-color 0.2s;
+}
+
+.copy-room-code:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.new-room-btn {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 5px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.new-room-btn:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.join-room-form-inline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.room-code-field-inline {
+  font-size: 1rem;
+  padding: 4px 6px;
+  border: none;
+  border-radius: 4px;
+  text-align: center;
+  letter-spacing: 0.05em;
+  font-family: 'Courier New', monospace;
+  font-weight: bold;
+  width: 80px;
+  background: rgba(255, 255, 255, 0.9);
+  color: #333;
+}
+
+.room-code-field-inline:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.5);
+}
+
+.join-btn-inline, .cancel-btn-inline {
+  padding: 4px 8px;
+  font-size: 0.8rem;
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.join-btn-inline:hover, .cancel-btn-inline:hover {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.join-btn-inline:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.cancel-btn-inline {
+  background-color: transparent;
 }
 
 .sessions-count {
@@ -764,6 +882,16 @@ html, body, #root {
   .animated-logo.right.active {
     transform: translate(-50%, -50%) scale(1.1);
   }
+
+  .connection-status {
+    gap: 12px;
+    font-size: 13px;
+  }
+
+  .room-code-field-inline {
+    width: 70px;
+    font-size: 0.9rem;
+  }
 }
 
 @media (max-width: 480px) {
@@ -870,5 +998,22 @@ html, body, #root {
   .animated-logo.right.active {
     transform: translate(-50%, -50%) scale(1.1);
   }
-}
 
+  .connection-status {
+    gap: 6px;
+    font-size: 12px;
+  }
+
+  .room-code-field-inline {
+    width: 65px;
+    font-size: 0.85rem;
+  }
+
+  .room-label {
+    font-size: 0.75rem;
+  }
+
+  .room-code {
+    font-size: 0.9rem;
+  }
+}

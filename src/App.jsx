@@ -86,15 +86,10 @@ function App() {
         </>
       )}
       
-      <RoomCodeInput 
-        currentRoomCode={roomCode}
-        onJoinRoom={handleJoinRoom}
-      />
-      
       <div className="clipboard-container">
         <div className="status-bar">
           <div className="status-left">
-            <ConnectionStatus roomCode={roomCode} />
+            <ConnectionStatus roomCode={roomCode} onJoinRoom={handleJoinRoom} />
           </div>
           <div className="header">
             <h1>Clipable</h1>
