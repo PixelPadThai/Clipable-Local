@@ -1,37 +1,46 @@
-
 import { supabase } from '../integrations/supabase/client.js';
 
 export const clipboardOperations = {
   async createRoom() {
-    try {
-      // Generate a new room code
-      const { data, error } = await supabase.rpc('generate_room_code');
+    let roomCode = null;
+    let attempts = 0;
+    const maxAttempts = 10;
+
+    while (attempts < maxAttempts) {
+      attempts++;
+      const { data: generatedCode, error: rpcError } = await supabase.rpc('generate_room_code');
       
-      if (error) {
-        console.error('Error generating room code:', error);
-        return null;
+      if (rpcError) {
+        console.error('Error generating room code:', rpcError);
+        continue;
       }
 
-      const roomCode = data;
-
-      // Create initial clipboard areas for the room
+      // Try to insert the new room
       const { error: insertError } = await supabase
         .from('clipboard_rooms')
         .insert([
-          { room_code: roomCode, area_name: 'area_1', content: '' },
-          { room_code: roomCode, area_name: 'area_2', content: '' }
+          { room_code: generatedCode, area_name: 'area_1', content: '' },
+          { room_code: generatedCode, area_name: 'area_2', content: '' }
         ]);
 
-      if (insertError) {
+      if (!insertError) {
+        roomCode = generatedCode;
+        break; // Success!
+      }
+
+      // If it's not a unique constraint violation, then it's an unexpected error.
+      if (insertError.code !== '23505') {
         console.error('Error creating room areas:', insertError);
         return null;
       }
-
-      return roomCode;
-    } catch (error) {
-      console.error('Error creating room:', error);
-      return null;
+      // Otherwise, it's a collision, and the loop will retry.
     }
+    
+    if (!roomCode) {
+      console.error('Failed to create a unique room after multiple attempts.');
+    }
+
+    return roomCode;
   },
 
   async joinRoom(roomCode) {
@@ -48,23 +57,9 @@ export const clipboardOperations = {
         console.error('Error checking room:', error);
         return false;
       }
-
-      if (!data) {
-        // Room doesn't exist, create it
-        const { error: insertError } = await supabase
-          .from('clipboard_rooms')
-          .insert([
-            { room_code: roomCode, area_name: 'area_1', content: '' },
-            { room_code: roomCode, area_name: 'area_2', content: '' }
-          ]);
-
-        if (insertError) {
-          console.error('Error creating room areas:', insertError);
-          return false;
-        }
-      }
-
-      return true;
+      
+      // If data is null, the room doesn't exist.
+      return !!data;
     } catch (error) {
       console.error('Error joining room:', error);
       return false;

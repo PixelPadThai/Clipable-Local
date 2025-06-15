@@ -1,5 +1,4 @@
-
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './App.css';
 import ClipboardArea from './components/ClipboardArea.jsx';
 import ConnectionStatus from './components/ConnectionStatus.jsx';
@@ -14,7 +13,20 @@ function App() {
   const [overlayOpacity, setOverlayOpacity] = useState(0);
   const [activeArea, setActiveArea] = useState(null);
   const [roomCode, setRoomCode] = useState(null);
-  const [isJoining, setIsJoining] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const createInitialRoom = async () => {
+      const newRoomCode = await clipboardOperations.createRoom();
+      if (newRoomCode) {
+        setRoomCode(newRoomCode);
+      } else {
+        alert('Failed to create a room. Please refresh the page to try again.');
+      }
+      setIsLoading(false);
+    };
+    createInitialRoom();
+  }, []);
 
   const toggleEffects = () => {
     setEffectsEnabled(!effectsEnabled);
@@ -33,33 +45,20 @@ function App() {
   };
 
   const handleJoinRoom = async (code) => {
-    setIsJoining(true);
+    setIsLoading(true);
     const success = await clipboardOperations.joinRoom(code);
     if (success) {
       setRoomCode(code);
     } else {
-      alert('Failed to join room. Please try again.');
+      alert('Failed to join room. The room code might be invalid.');
     }
-    setIsJoining(false);
+    setIsLoading(false);
   };
 
-  const handleCreateRoom = async () => {
-    const newRoomCode = await clipboardOperations.createRoom();
-    if (newRoomCode) {
-      setRoomCode(newRoomCode);
-    } else {
-      alert('Failed to create room. Please try again.');
-    }
-  };
-
-  if (!roomCode) {
+  if (isLoading) {
     return (
-      <div className="app">
-        <RoomCodeInput 
-          onJoinRoom={handleJoinRoom}
-          onCreateRoom={handleCreateRoom}
-          isJoining={isJoining}
-        />
+      <div className="app" style={{ display: 'flex', color: 'white', justifyContent: 'center', alignItems: 'center', height: '100vh', background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' }}>
+        <h2>Creating a new room...</h2>
       </div>
     );
   }
@@ -87,7 +86,10 @@ function App() {
         </>
       )}
       
-      <RoomCodeInput currentRoomCode={roomCode} />
+      <RoomCodeInput 
+        currentRoomCode={roomCode}
+        onJoinRoom={handleJoinRoom}
+      />
       
       <div className="clipboard-container">
         <div className="status-bar">
