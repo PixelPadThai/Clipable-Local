@@ -1,5 +1,4 @@
-
-import { useState, useEffect, useCallback, useRef } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { clipboardOperations } from '../services/clipboardOperations.js';
 import { AUTO_SAVE_DELAY } from '../config.js';
 
