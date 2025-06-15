@@ -1,5 +1,6 @@
+
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { clipboardOperations } from '../services/clipboardService.js';
+import { clipboardOperations } from '../services/clipboardOperations.js';
 import { AUTO_SAVE_DELAY } from '../config.js';
 
 export function useClipboard(areaName) {
@@ -92,4 +93,4 @@ export function useClipboard(areaName) {
     isLoading,
     isSaving
   };
-} 
+}
