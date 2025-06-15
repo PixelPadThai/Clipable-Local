@@ -1,14 +1,19 @@
+
 import { useState } from 'react';
 import './App.css';
 import ClipboardArea from './components/ClipboardArea.jsx';
 import ConnectionStatus from './components/ConnectionStatus.jsx';
 import SaveIndicator from './components/SaveIndicator.jsx';
 import AnimatedLogo from './components/AnimatedLogo.jsx';
+import Auth from './components/Auth.jsx';
+import UserProfile from './components/UserProfile.jsx';
+import { AuthProvider, useAuth } from './contexts/AuthContext.jsx';
 
-function App() {
+function AppContent() {
   const [effectsEnabled, setEffectsEnabled] = useState(true);
   const [overlayOpacity, setOverlayOpacity] = useState(0);
   const [activeArea, setActiveArea] = useState(null);
+  const { user, loading } = useAuth();
 
   const toggleEffects = () => {
     setEffectsEnabled(!effectsEnabled);
@@ -25,6 +30,22 @@ function App() {
   const handleAreaBlur = () => {
     setActiveArea(null);
   };
+
+  if (loading) {
+    return (
+      <div className="app loading-screen">
+        <div className="loading-message">Loading...</div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    return (
+      <div className="app">
+        <Auth />
+      </div>
+    );
+  }
 
   return (
     <div className={`app ${effectsEnabled ? 'effects-enabled' : 'effects-disabled'}`}>
@@ -57,6 +78,7 @@ function App() {
             <h1>Clipable</h1>
           </div>
           <div className="status-right">
+            <UserProfile />
             <div className="background-toggle-container">
               <label className="background-toggle" title={effectsEnabled ? 'Switch to static background' : 'Switch to animated background'}>
                 <input 
@@ -99,6 +121,14 @@ function App() {
         </div>
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <AuthProvider>
+      <AppContent />
+    </AuthProvider>
   );
 }
 
