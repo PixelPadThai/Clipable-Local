@@ -33,7 +33,7 @@ Clipable transforms the simple concept of a clipboard into a powerful, privacy-f
 - **Browser Support**: Works in all modern browsers
 
 ### 🎨 **Beautiful Design**
-- **Dynamic Background**: Animated starry night sky with flowing gradient hearts
+- **Dynamic Background**: Animated flowing gradient hearts
 - **Interactive Logos**: Beautiful SVG animations that respond to your focus
 - **Glassmorphism UI**: Modern glass effects with perfect transparency
 - **Flowing Gradients**: Stunning color transitions throughout the interface
