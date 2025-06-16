@@ -6,10 +6,12 @@ Clipable transforms the simple concept of a clipboard into a powerful, privacy-f
 
 ![Screenshot 2568-06-16 at 20 39 02 (1)](https://github.com/user-attachments/assets/92be9541-d88c-40e0-bf21-04e41f8b4fd7)
 
+
 ![clipable-local](https://github.com/user-attachments/assets/beeab401-5e71-45ee-b2e7-a93a85fef66e)
 
 ![clipable-local-2](https://github.com/user-attachments/assets/2c65e9c1-1660-4aa2-b840-4da7139671a3)
 
+![clipable-local-3](https://github.com/user-attachments/assets/52dd7960-06d4-48a7-b767-b98be58a61d8)
 
 ## 🔒 **Privacy-First Design**
 
