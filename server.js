@@ -61,9 +61,56 @@ async function writeDatabase(data) {
 // WebSocket connection handling
 const clients = new Set();
 
+// Function to broadcast connection count to all clients
+function broadcastConnectionCount() {
+  const count = clients.size;
+  const message = JSON.stringify({
+    type: 'connection_count',
+    count: count
+  });
+  
+  clients.forEach(client => {
+    if (client.readyState === 1) { // WebSocket.OPEN = 1
+      try {
+        client.send(message);
+      } catch (error) {
+        console.error('Error broadcasting connection count:', error);
+        clients.delete(client);
+      }
+    }
+  });
+}
+
+// Heartbeat to detect dead connections
+setInterval(() => {
+  const initialSize = clients.size;
+  clients.forEach(client => {
+    if (client.readyState !== 1 || !client.isAlive) {
+      clients.delete(client);
+      if (client.readyState === 1) {
+        client.terminate();
+      }
+    } else {
+      client.isAlive = false;
+      client.ping();
+    }
+  });
+  if (clients.size !== initialSize) {
+    console.log(`🧹 Cleaned up ${initialSize - clients.size} dead connections. Active clients: ${clients.size}`);
+    // Broadcast updated count after cleanup
+    broadcastConnectionCount();
+  }
+}, 10000); // Check every 10 seconds
+
 wss.on('connection', async (ws) => {
-  console.log('🔗 New client connected. Total clients:', clients.size + 1);
   clients.add(ws);
+  console.log('🔗 New client connected. Total clients:', clients.size);
+
+  // Add heartbeat to detect dead connections
+  ws.isAlive = true;
+  ws.on('pong', () => {
+    ws.isAlive = true;
+  });
 
   // Send current data to newly connected client
   const currentData = await readDatabase();
@@ -71,6 +118,9 @@ wss.on('connection', async (ws) => {
     type: 'init',
     data: currentData
   }));
+
+  // Broadcast updated connection count to all clients
+  broadcastConnectionCount();
 
   // Handle messages from clients
   ws.on('message', async (message) => {
@@ -108,12 +158,16 @@ wss.on('connection', async (ws) => {
   ws.on('close', () => {
     clients.delete(ws);
     console.log('❌ Client disconnected. Total clients:', clients.size);
+    // Broadcast updated connection count to remaining clients
+    broadcastConnectionCount();
   });
 
   // Handle WebSocket errors
   ws.on('error', (error) => {
     console.error('❌ WebSocket error:', error);
     clients.delete(ws);
+    // Broadcast updated connection count after error cleanup
+    broadcastConnectionCount();
   });
 });
 
@@ -158,6 +212,13 @@ app.post('/api/clipboard/:areaName', async (req, res) => {
 });
 
 app.get('/api/status', (req, res) => {
+  // Clean up any closed connections
+  clients.forEach(client => {
+    if (client.readyState !== 1) { // Not WebSocket.OPEN
+      clients.delete(client);
+    }
+  });
+  
   res.json({
     status: 'running',
     clients: clients.size,

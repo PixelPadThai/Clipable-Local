@@ -1,12 +1,17 @@
 
 import { useClipboard } from '../hooks/useClipboard.js';
 import CopyButton from './CopyButton.jsx';
+import ClearButton from './ClearButton.jsx';
 
 function ClipboardArea({ roomCode, areaName, placeholder, onFocus, onBlur }) {
   const { content, updateContent, isLoading, isSaving } = useClipboard(roomCode, areaName);
 
   const handleChange = (e) => {
     updateContent(e.target.value);
+  };
+
+  const handleClear = async () => {
+    updateContent('');
   };
 
   // Calculate stats
@@ -36,6 +41,7 @@ function ClipboardArea({ roomCode, areaName, placeholder, onFocus, onBlur }) {
         </div>
         
         <div className="floating-copy">
+          <ClearButton onClear={handleClear} disabled={!content.trim()} />
           <CopyButton text={content} />
         </div>
 

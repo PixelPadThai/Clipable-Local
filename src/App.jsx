@@ -4,6 +4,9 @@ import ClipboardArea from './components/ClipboardArea.jsx';
 import ConnectionStatus from './components/ConnectionStatus.jsx';
 import SaveIndicator from './components/SaveIndicator.jsx';
 import AnimatedLogo from './components/AnimatedLogo.jsx';
+import LovableLogo from './components/LovableLogo.jsx';
+import MobileClipboardTabs from './components/MobileClipboardTabs.jsx';
+import MobileHeader from './components/MobileHeader.jsx';
 import RoomCodeInput from './components/RoomCodeInput.jsx';
 import { clipboardOperations } from './services/clipboardOperations.js';
 import './components/RoomCodeInput.css';
@@ -14,6 +17,9 @@ function App() {
   const [activeArea, setActiveArea] = useState(null);
   const [roomCode, setRoomCode] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeMobileArea, setActiveMobileArea] = useState('area_1');
+  const [connected, setConnected] = useState(true);
+  const [connectionCount, setConnectionCount] = useState(0);
 
   useEffect(() => {
     const createInitialRoom = async () => {
@@ -26,6 +32,49 @@ function App() {
       setIsLoading(false);
     };
     createInitialRoom();
+  }, []);
+
+  // Connection status monitoring
+  useEffect(() => {
+    const checkConnection = async () => {
+      try {
+        const response = await fetch('http://localhost:5554/api/status');
+        if (response.ok) {
+          const data = await response.json();
+          setConnected(true);
+          setConnectionCount(data.clients || 0);
+        } else {
+          setConnected(false);
+          setConnectionCount(0);
+        }
+      } catch (error) {
+        setConnected(false);
+        setConnectionCount(0);
+      }
+    };
+
+    // Initial check
+    checkConnection();
+    
+    // Polling as fallback (reduced frequency since we have real-time updates)
+    const interval = setInterval(checkConnection, 15000); // Every 15 seconds instead of 5
+    
+    // Subscribe to real-time connection count updates with a small delay
+    let unsubscribeConnectionCount = null;
+    const subscriptionTimeout = setTimeout(() => {
+      unsubscribeConnectionCount = clipboardOperations.subscribeToConnectionCount((count) => {
+        setConnectionCount(count);
+        setConnected(true); // If we're getting WebSocket updates, we're connected
+      });
+    }, 1000); // 1 second delay to ensure server is ready
+    
+    return () => {
+      clearInterval(interval);
+      clearTimeout(subscriptionTimeout);
+      if (unsubscribeConnectionCount) {
+        unsubscribeConnectionCount();
+      }
+    };
   }, []);
 
   const toggleEffects = () => {
@@ -87,12 +136,22 @@ function App() {
       )}
       
       <div className="clipboard-container">
-        <div className="status-bar">
+        {/* Desktop Header */}
+        <div className="status-bar desktop-header">
           <div className="status-left">
-            <ConnectionStatus roomCode={roomCode} onJoinRoom={handleJoinRoom} />
+            <ConnectionStatus 
+              roomCode={roomCode} 
+              onJoinRoom={handleJoinRoom}
+              connected={connected}
+              connectionCount={connectionCount}
+            />
           </div>
           <div className="header">
-            <h1>Clipable</h1>
+            <h1>
+              <LovableLogo className="logo-icon" style={{ width: '32px', height: '32px', marginRight: '8px', verticalAlign: 'middle' }} />
+              Clipable
+              <span className="local-text">Local</span>
+            </h1>
           </div>
           <div className="status-right">
             <div className="background-toggle-container">
@@ -120,8 +179,20 @@ function App() {
             <SaveIndicator />
           </div>
         </div>
+
+        {/* Mobile Header */}
+        <MobileHeader 
+          connectionCount={connectionCount}
+          connected={connected}
+          effectsEnabled={effectsEnabled}
+          setEffectsEnabled={setEffectsEnabled}
+          overlayOpacity={overlayOpacity}
+          setOverlayOpacity={setOverlayOpacity}
+          saveIndicator={<SaveIndicator />}
+        />
         
-        <div className="text-areas">
+        {/* Desktop and Tablet Layout */}
+        <div className="text-areas desktop-layout">
           <ClipboardArea
             roomCode={roomCode}
             areaName="area_1"
@@ -136,6 +207,27 @@ function App() {
             onFocus={() => handleAreaFocus('area_2')}
             onBlur={handleAreaBlur}
           />
+        </div>
+
+        {/* Mobile Layout */}
+        <div className="mobile-layout">
+          <MobileClipboardTabs 
+            activeArea={activeMobileArea} 
+            onAreaChange={setActiveMobileArea} 
+          />
+          <div className="mobile-clipboard-container">
+            <ClipboardArea
+              roomCode={roomCode}
+              areaName={activeMobileArea}
+              placeholder={
+                activeMobileArea === 'area_1' 
+                  ? "Start typing here... Your text will sync across all devices." 
+                  : "Use this area for different content... Perfect for comparing or organizing text."
+              }
+              onFocus={() => handleAreaFocus(activeMobileArea)}
+              onBlur={handleAreaBlur}
+            />
+          </div>
         </div>
       </div>
     </div>

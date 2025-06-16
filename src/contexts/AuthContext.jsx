@@ -1,6 +1,4 @@
-
-import { createContext, useContext, useState, useEffect } from 'react';
-import { supabase } from '../integrations/supabase/client.js';
+import { createContext, useContext, useState } from 'react';
 
 const AuthContext = createContext({});
 
@@ -13,46 +11,20 @@ export const useAuth = () => {
 };
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [session, setSession] = useState(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
-      }
-    );
-
-    // Get initial session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  // For local clipboard, we don't need authentication
+  // Just provide a mock user and simple interface
+  const [user] = useState({ id: 'local-user', email: 'local@clipboard.app' });
+  const [session] = useState({ user: { id: 'local-user' } });
+  const [loading] = useState(false);
 
   const signInWithEmail = async (email) => {
-    const redirectUrl = `${window.location.origin}/`;
-    
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo: redirectUrl
-      }
-    });
-
-    return { error };
+    // Mock sign in - always success for local operation
+    return { error: null };
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    return { error };
+    // Mock sign out - always success for local operation
+    return { error: null };
   };
 
   const value = {
