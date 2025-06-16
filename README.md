@@ -4,6 +4,13 @@
 
 Clipable transforms the simple concept of a clipboard into a powerful, privacy-focused solution that stays entirely under your control. Share text instantly across all your devices through your local network—no cloud services, no external databases, no data collection, no privacy concerns. All your data is stored locally in a simple JSON file that you own and control!
 
+![Screenshot 2568-06-16 at 20 39 02 (1)](https://github.com/user-attachments/assets/92be9541-d88c-40e0-bf21-04e41f8b4fd7)
+
+![clipable-local](https://github.com/user-attachments/assets/beeab401-5e71-45ee-b2e7-a93a85fef66e)
+
+![clipable-local-2](https://github.com/user-attachments/assets/2c65e9c1-1660-4aa2-b840-4da7139671a3)
+
+
 ## 🔒 **Privacy-First Design**
 
 - **🏠 100% Local**: Everything runs on your computer and local network
